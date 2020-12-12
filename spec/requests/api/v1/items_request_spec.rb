@@ -86,4 +86,14 @@ describe 'Items API', type: :request do
     expect(item.name).to_not eq(previous_name)
     expect(item.name).to eq(item_params[:name])
   end
+
+  it 'deletes an item' do
+    item = create(:item)
+
+    expect{ delete "/api/v1/items/#{item.id}" }.to change(Item, :count).by(-1)
+
+    expect(response).to be_successful
+    expect(Item.count).to eq(0)
+    expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+  end
 end
