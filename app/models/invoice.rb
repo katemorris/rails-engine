@@ -6,4 +6,10 @@ class Invoice < ApplicationRecord
   has_many :transactions, dependent: :destroy
 
   validates :status, presence: true, acceptance: { accept: ['packaged', 'returned', 'shipped'] }
+
+  def self.remove_no_items
+    Invoice.left_joins(:invoice_items).where(invoice_items: {invoice_id: nil}).find_each do |invoice|
+      invoice.destroy
+    end
+  end
 end

@@ -17,6 +17,7 @@ class Api::V1::ItemsController < ApplicationController
 
   def destroy
     render json: Item.destroy(params[:id])
+    Invoice.remove_no_items
   end
 
   private
