@@ -7,7 +7,7 @@ class ApplicationRecord < ActiveRecord::Base
       if param == 'created_at' || param == 'updated_at'
         items << self.where("DATE(#{param}) = ?", "%#{value}%") if self.has_attribute?(param)
       else
-        items << self.where("LOWER(#{param}) LIKE ?", "%#{value}%") if self.has_attribute?(param)
+        items << self.where("LOWER(#{param}) LIKE ?", "%#{value.downcase}%") if self.has_attribute?(param)
       end
     end
     items.flatten
