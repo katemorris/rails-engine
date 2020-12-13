@@ -69,16 +69,23 @@ describe 'Items Search API', type: :request do
     expect(item[:attributes][:name]).to eq(core_item[:name])
   end
 
-  xit 'sends all items data' do
-    create_list(:item, 3)
+  it 'sends all items data for partial match' do
+    create(:item, name: 'Fluffy Bunny')
+    create(:item, name: 'Fat Bunny')
+    create(:item, name: 'Peanut Bunner')
+    create(:item, name: 'Superman')
 
-    get '/api/v1/items'
+    attribute = :name
+    query = 'bun'
+
+    get "/api/v1/items/find_all?#{attribute}=#{query}"
 
     expect(response).to be_successful
 
-    items = JSON.parse(response.body, symbolize_names: true)
+    items = JSON.parse(response.body, symbolize_names: true)[:data]
+    expect(items.count).to eq(3)
 
-    items[:data].each do |item|
+    items.each do |item|
       expect(item).to have_key(:id)
       expect(item[:id]).to be_an(String)
 
@@ -95,7 +102,4 @@ describe 'Items Search API', type: :request do
       expect(item[:attributes][:merchant_id]).to be_an(Integer)
     end
   end
-
-
-
 end
