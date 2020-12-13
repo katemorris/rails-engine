@@ -19,6 +19,7 @@ csv_text = File.read(Rails.root.join('db', 'data', 'items.csv'))
 csv = CSV.parse(csv_text, :headers => true)
 csv.each do |row|
   t = Item.new(
+    id: row['id'],
     name: row['name'],
     description: row['description'],
     unit_price: (row['unit_price'].to_f / 100),
