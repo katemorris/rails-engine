@@ -10,21 +10,17 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def create
-    render json: MerchantSerializer.new(
-      Merchant.create!(name: params[:merchant][:name])
-    )
+    merchant = Merchant.create!(name: params[:name])
+    render json: MerchantSerializer.new(merchant)
   end
 
   def update
-    render json: MerchantSerializer.new(
-      Merchant.update(params[:id], name: params[:merchant][:name])
-    )
+    merchant = Merchant.update(params[:id], name: params[:name])
+    render json: MerchantSerializer.new(merchant)
   end
 
   def destroy
-    render json: MerchantSerializer.new(
-      Merchant.destroy(params[:id])
-    )
+    Merchant.destroy(params[:id])
   end
 
 end
