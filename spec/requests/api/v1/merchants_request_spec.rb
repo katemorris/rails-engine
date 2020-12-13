@@ -10,12 +10,12 @@ describe 'Merchant API', type: :request do
 
     merchants = JSON.parse(response.body, symbolize_names: true)
 
-    merchants.each do |merchant|
+    merchants[:data].each do |merchant|
       expect(merchant).to have_key(:id)
-      expect(merchant[:id]).to be_an(Integer)
+      expect(merchant[:id]).to be_an(String)
 
-      expect(merchant).to have_key(:name)
-      expect(merchant[:name]).to be_a(String)
+      expect(merchant[:attributes]).to have_key(:name)
+      expect(merchant[:attributes][:name]).to be_a(String)
     end
   end
 
@@ -26,13 +26,13 @@ describe 'Merchant API', type: :request do
 
     expect(response).to be_successful
 
-    merchant = JSON.parse(response.body, symbolize_names: true)
+    merchant = JSON.parse(response.body, symbolize_names: true)[:data]
 
     expect(merchant).to have_key(:id)
-    expect(merchant[:id]).to be_an(Integer)
+    expect(merchant[:id]).to be_an(String)
 
-    expect(merchant).to have_key(:name)
-    expect(merchant[:name]).to be_a(String)
+    expect(merchant[:attributes]).to have_key(:name)
+    expect(merchant[:attributes][:name]).to be_a(String)
   end
 
   it 'creates a merchant' do
