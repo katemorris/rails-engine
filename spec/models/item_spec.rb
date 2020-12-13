@@ -12,4 +12,19 @@ RSpec.describe Item, type: :model do
     it { should validate_presence_of :description }
     it { should validate_presence_of :unit_price }
   end
+
+  describe 'class methods' do
+    it '#search()' do
+      fluffy = create(:item, description: 'Fluffy Bunny')
+      mad = create(:item, description: 'Mad Bunny')
+      create_list(:item, 3)
+      params = {
+        "description" => "bun",
+        "controller" => "api/v1/items/search",
+        "action" => "show"
+      }
+      expected = [fluffy, mad]
+      expect(Item.search(params)).to eq(expected)
+    end
+  end
 end
