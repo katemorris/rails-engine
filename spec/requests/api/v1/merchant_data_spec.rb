@@ -23,7 +23,7 @@ describe 'Merchant API', type: :request do
     get '/api/v1/merchants/most_revenue?quantity=2'
 
     expect(response).to be_successful
-    require "pry"; binding.pry
+
     merchants = JSON.parse(response.body, symbolize_names: true)
 
     merchants[:data].each do |merchant|
