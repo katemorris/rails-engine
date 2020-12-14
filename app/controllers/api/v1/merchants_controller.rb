@@ -9,11 +9,6 @@ class Api::V1::MerchantsController < ApplicationController
     )
   end
 
-  def items
-    merchant = Merchant.find(params[:merchant_id])
-    render json: ItemSerializer.new(merchant.items)
-  end
-
   def create
     merchant = Merchant.create!(name: params[:name])
     render json: MerchantSerializer.new(merchant)
