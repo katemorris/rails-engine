@@ -1,25 +1,31 @@
 require 'rails_helper'
 
 describe 'Merchant API', type: :request do
-  it 'returns merchants with the most revenue' do
+  before :each do
     #merchants
-    merchants = create_list(:merchant, 2)
+    @merchants = create_list(:merchant, 2)
+    #items
+    merchant1_item1 = create(:item, merchant: @merchants[1])
+    merchant1_item2 = create(:item, merchant: @merchants[1])
+    merchant0_item = create(:item, merchant: @merchants[0])
     #invoices
-    merchant1_shipped = create(:invoice, merchant: merchants[1], status: 'shipped')
-    merchant1_returned = create(:invoice, merchant: merchants[1], status: 'returned')
-    merchant0_returned = create(:invoice, merchant: merchants[0], status: 'returned')
-    merchant0_shipped = create(:invoice, merchant: merchants[0], status: 'shipped')
+    merchant1_shipped = create(:invoice, merchant: @merchants[1], status: 'shipped')
+    merchant1_returned = create(:invoice, merchant: @merchants[1], status: 'returned')
+    merchant0_returned = create(:invoice, merchant: @merchants[0], status: 'returned')
+    merchant0_shipped = create(:invoice, merchant: @merchants[0], status: 'shipped')
     #invoiceitems
-    create_list(:invoice_item, 3, invoice: merchant1_shipped)
-    create_list(:invoice_item, 2, invoice: merchant1_returned)
-    create_list(:invoice_item, 4, invoice: merchant0_returned)
-    create_list(:invoice_item, 1, invoice: merchant0_shipped)
+    create_list(:invoice_item, 10, invoice: merchant1_shipped, unit_price: 12, item: merchant1_item1)
+    create_list(:invoice_item, 1, invoice: merchant1_returned, unit_price: 10, item: merchant1_item1)
+    create_list(:invoice_item, 1, invoice: merchant0_returned, unit_price: 10, item: merchant0_item)
+    create_list(:invoice_item, 4, invoice: merchant0_shipped, unit_price: 5, item: merchant0_item)
     #transactions
     create(:transaction, invoice: merchant1_shipped, result: 'success')
     create(:transaction, invoice: merchant1_returned, result: 'refunded')
     create(:transaction, invoice: merchant0_returned, result: 'refunded')
     create(:transaction, invoice: merchant0_shipped, result: 'success')
+  end
 
+  it 'returns merchants with the most revenue' do
     get '/api/v1/merchants/most_revenue?quantity=2'
 
     expect(response).to be_successful
@@ -33,5 +39,27 @@ describe 'Merchant API', type: :request do
       expect(merchant[:attributes]).to have_key(:name)
       expect(merchant[:attributes][:name]).to be_a(String)
     end
+
+    expect(merchants[:data].first[:id]).to eq(@merchants[1].id.to_s)
+    expect(merchants[:data].last[:id]).to eq(@merchants[0].id.to_s)
+
+  end
+
+  it 'returns merchants with the most items sold' do
+    get '/api/v1/merchants/most_items?quantity=1'
+
+    expect(response).to be_successful
+
+    merchants = JSON.parse(response.body, symbolize_names: true)
+
+    merchants[:data].each do |merchant|
+      expect(merchant).to have_key(:id)
+      expect(merchant[:id]).to be_an(String)
+
+      expect(merchant[:attributes]).to have_key(:name)
+      expect(merchant[:attributes][:name]).to be_a(String)
+    end
+
+    expect(merchants[:data].first[:id]).to eq(@merchants[1].id.to_s)
   end
 end

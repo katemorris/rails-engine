@@ -11,7 +11,7 @@ class Merchant < ApplicationRecord
     .left_joins(:invoice_items)
     .select(:merchant_id, 'SUM(invoice_items.unit_price * invoice_items.quantity) as revenue')
     .where('transactions.result = ? AND invoices.status = ?', "success", "shipped")
-    .order('revenue')
+    .order('revenue desc')
     .group(:merchant_id)
     .limit(quantity)
 
@@ -21,6 +21,10 @@ class Merchant < ApplicationRecord
   end
 
   def self.most_items(quantity)
-
+    Merchant.joins(:items)
+    .select('merchants.*, COUNT(items.id) as item_count')
+    .group('merchants.id')
+    .order('item_count desc')
+    .limit(quantity)
   end
 end
