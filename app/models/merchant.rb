@@ -15,16 +15,28 @@ class Merchant < ApplicationRecord
     .group(:merchant_id)
     .limit(quantity)
 
-    invoices.map do |invoice|
-      Merchant.find(invoice.merchant_id)
-    end
+    find_merchants(invoices)
   end
 
   def self.most_items(quantity)
-    Merchant.joins(:items)
-    .select('merchants.*, COUNT(items.id) as item_count')
-    .group('merchants.id')
-    .order('item_count desc')
+    invoices = Invoice.joins(:transactions)
+    .left_joins(:invoice_items)
+    .select(:merchant_id, 'SUM(invoice_items.quantity) as sold_items')
+    .where('transactions.result = ? AND invoices.status = ?', "success", "shipped")
+    .order('sold_items desc')
+    .group(:merchant_id)
     .limit(quantity)
+
+    find_merchants(invoices)
   end
+
+  def self.find_merchants(data)
+    data.map do |d|
+      Merchant.find(d.merchant_id)
+    end
+  end
+  #
+  # def self.total_revenue(start_date, end
+  #
+  # end
 end
