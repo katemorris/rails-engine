@@ -22,25 +22,34 @@ RSpec.describe Merchant, type: :model do
       merchant1_shipped = create(:invoice, merchant: @merchants[1], status: 'shipped')
       merchant1_returned = create(:invoice, merchant: @merchants[1], status: 'returned')
       merchant0_returned = create(:invoice, merchant: @merchants[0], status: 'returned')
-      merchant0_shipped = create(:invoice, merchant: @merchants[0], status: 'shipped')
+      @merchant0_shipped = create(:invoice, merchant: @merchants[0], status: 'shipped')
       #invoiceitems
-      create_list(:invoice_item, 10, invoice: merchant1_shipped, unit_price: 12, item: merchant1_item1)
-      create_list(:invoice_item, 1, invoice: merchant1_returned, unit_price: 10, item: merchant1_item1)
-      create_list(:invoice_item, 1, invoice: merchant0_returned, unit_price: 10, item: merchant0_item)
-      create_list(:invoice_item, 4, invoice: merchant0_shipped, unit_price: 5, item: merchant0_item)
+      create_list(:invoice_item, 10, invoice: merchant1_shipped, unit_price: 12, quantity: 1,item: merchant1_item1)
+      create_list(:invoice_item, 1, invoice: merchant1_returned, unit_price: 10, quantity: 1,item: merchant1_item1)
+      create_list(:invoice_item, 1, invoice: merchant0_returned, unit_price: 10, quantity: 1,item: merchant0_item)
+      create_list(:invoice_item, 4, invoice: @merchant0_shipped, unit_price: 5, quantity: 1,item: merchant0_item)
       #transactions
       create(:transaction, invoice: merchant1_shipped, result: 'success')
       create(:transaction, invoice: merchant1_returned, result: 'refunded')
       create(:transaction, invoice: merchant0_returned, result: 'refunded')
-      create(:transaction, invoice: merchant0_shipped, result: 'success')
+      create(:transaction, invoice: @merchant0_shipped, result: 'success')
     end
 
-    it '.most_revenue' do
+    it '.most_revenue()' do
       expect(Merchant.most_revenue(1)).to eq([@merchants[1]])
     end
 
-    it '.most_items' do
+    it '.most_items()' do
       expect(Merchant.most_items(1)).to eq([@merchants[1]])
+    end
+
+    it '.find_merchants()' do
+      expect(Merchant.find_merchants([@merchant0_shipped])).to eq([@merchants[0]])
+    end
+
+    it '.total_revenue()' do
+      date = Date.today
+      expect(Merchant.total_revenue(date, date)).to eq(140)
     end
   end
 end

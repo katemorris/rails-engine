@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'date'
 
 describe 'Merchant API', type: :request do
   before :each do
@@ -14,10 +15,10 @@ describe 'Merchant API', type: :request do
     merchant0_returned = create(:invoice, merchant: @merchants[0], status: 'returned')
     merchant0_shipped = create(:invoice, merchant: @merchants[0], status: 'shipped')
     #invoiceitems
-    create_list(:invoice_item, 10, invoice: merchant1_shipped, unit_price: 12, item: merchant1_item1)
-    create_list(:invoice_item, 1, invoice: merchant1_returned, unit_price: 10, item: merchant1_item1)
-    create_list(:invoice_item, 1, invoice: merchant0_returned, unit_price: 10, item: merchant0_item)
-    create_list(:invoice_item, 4, invoice: merchant0_shipped, unit_price: 5, item: merchant0_item)
+    create_list(:invoice_item, 10, invoice: merchant1_shipped, unit_price: 12, quantity: 1,item: merchant1_item1)
+    create_list(:invoice_item, 1, invoice: merchant1_returned, unit_price: 10, quantity: 1,item: merchant1_item1)
+    create_list(:invoice_item, 1, invoice: merchant0_returned, unit_price: 10, quantity: 1,item: merchant0_item)
+    create_list(:invoice_item, 4, invoice: merchant0_shipped, unit_price: 5, quantity: 1,item: merchant0_item)
     #transactions
     create(:transaction, invoice: merchant1_shipped, result: 'success')
     create(:transaction, invoice: merchant1_returned, result: 'refunded')
@@ -61,5 +62,14 @@ describe 'Merchant API', type: :request do
     end
 
     expect(merchants[:data].first[:id]).to eq(@merchants[1].id.to_s)
+  end
+
+  it 'returns total revenue for all merchants in a date range' do
+    get "/api/v1/revenue?start=#{Date.today}&end=#{Date.today}"
+
+    expect(response).to be_successful
+    revenue = JSON.parse(response.body, symbolize_names: true)
+
+    expect(revenue[:data][:attributes][:revenue].to_f.round(2)).to eq(140.0)
   end
 end
