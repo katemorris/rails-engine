@@ -48,4 +48,24 @@ RSpec.describe Merchant, type: :model do
       expect(Merchant.total_revenue(date, date)).to eq(140)
     end
   end
+
+  describe 'instance methods' do
+    it '#revenue' do
+      merchant = create(:merchant)
+      items = create_list(:item, 3, merchant: merchant)
+      invoice1 = create(:invoice, merchant: merchant, status: 'shipped')
+      invoice2 = create(:invoice, merchant: merchant, status: 'returned')
+      invoice3 = create(:invoice, merchant: merchant, status: 'shipped')
+      #invoice_items
+      create_list(:invoice_item, 3, invoice: invoice1, unit_price: 12, quantity: 2,item: items[0])
+      create_list(:invoice_item, 1, invoice: invoice2, unit_price: 10, quantity: 1,item: items[1])
+      create_list(:invoice_item, 1, invoice: invoice3, unit_price: 10, quantity: 1,item: items[2])
+      #transactions
+      create(:transaction, invoice: invoice1, result: 'success')
+      create(:transaction, invoice: invoice2, result: 'refunded')
+      create(:transaction, invoice: invoice3, result: 'refunded')
+
+      expect(merchant.revenue).to eq(72.0)
+    end
+  end
 end
