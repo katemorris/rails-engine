@@ -6,7 +6,7 @@ class Api::V1::RevenueController < ApplicationController
 
   def show
     merchant = Merchant.find(params[:merchant_id])
-    data = merchant.revenue
+    data = merchant.revenue if merchant
     render json: RevenueSerializer.revenue(data)
   end
 end

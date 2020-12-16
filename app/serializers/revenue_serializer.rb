@@ -8,5 +8,4 @@ class RevenueSerializer
       }
     }
   end
-
 end

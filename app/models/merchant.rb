@@ -7,7 +7,6 @@ class Merchant < ApplicationRecord
   validates :name, presence: true
 
   def self.most_revenue(quantity)
-
     Merchant.joins(invoices: [:invoice_items, :transactions])
     .select('merchants.*, SUM(invoice_items.unit_price * invoice_items.quantity) as revenue')
     .merge(Transaction.successful)
