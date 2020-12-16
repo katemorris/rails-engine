@@ -5,7 +5,7 @@ class Api::V1::Merchants::SearchController < ApplicationController
   end
 
   def show
-    item = Merchant.search(params)
+    item = Merchant.search(params, 1)
     render json: MerchantSerializer.new(item.first)
   end
 end
