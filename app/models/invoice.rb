@@ -7,6 +7,8 @@ class Invoice < ApplicationRecord
 
   validates :status, presence: true, acceptance: { accept: ['pending', 'packaged', 'returned', 'shipped'] }
 
+  scope :shipped, -> { where("status = ?", "shipped") }
+
   def self.remove_no_items
     Invoice.left_joins(:invoice_items)
     .where(invoice_items: {invoice_id: nil})

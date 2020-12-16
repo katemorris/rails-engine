@@ -43,10 +43,6 @@ RSpec.describe Merchant, type: :model do
       expect(Merchant.most_items(1)).to eq([@merchants[1]])
     end
 
-    it '.find_merchants()' do
-      expect(Merchant.find_merchants([@merchant0_shipped])).to eq([@merchants[0]])
-    end
-
     it '.total_revenue()' do
       date = Date.today
       expect(Merchant.total_revenue(date, date)).to eq(140)
