@@ -3,7 +3,7 @@ class RevenueSerializer
     {
       data: {
         attributes: {
-          revenue: data.to_s
+          revenue: data.round(2)
         }
       }
     }

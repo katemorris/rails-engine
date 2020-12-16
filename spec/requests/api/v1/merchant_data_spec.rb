@@ -72,4 +72,13 @@ describe 'Merchant API', type: :request do
 
     expect(revenue[:data][:attributes][:revenue].to_f.round(2)).to eq(140.0)
   end
+
+  it 'returns total revenue for a single merchant' do
+    get "/api/v1/merchants/#{@merchants[1].id}/revenue"
+
+    expect(response).to be_successful
+    revenue = JSON.parse(response.body, symbolize_names: true)
+
+    expect(revenue[:data][:attributes][:revenue].to_f.round(2)).to eq(120.0)
+  end
 end
