@@ -44,8 +44,9 @@ RSpec.describe Merchant, type: :model do
     end
 
     it '.total_revenue()' do
-      date = Date.today
-      expect(Merchant.total_revenue(date, date)).to eq(140)
+      start_date = Date.today - 30
+      end_date = Date.today + 30
+      expect(Merchant.total_revenue(start_date, end_date)).to eq(140)
     end
   end
 
