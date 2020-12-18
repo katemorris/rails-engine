@@ -6,6 +6,7 @@ describe 'Merchant Search API', type: :request do
     @bunny = create(:merchant, name: 'Bunny Hill', created_at: DateTime.now - (2/24.0))
     create_list(:merchant, 3)
   end
+
   it 'finds one merchant using one input' do
     expect(Merchant.all.count).to eq(4)
 
@@ -43,6 +44,19 @@ describe 'Merchant Search API', type: :request do
 
     expect(merchant[:attributes]).to have_key(:name)
     expect(merchant[:attributes][:name]).to eq(@bunny.name)
+  end
+
+  it 'return blank array if no merchants are found' do
+    create_list(:merchant, 3)
+    attribute = :name
+    query = 'jfdsiej'
+
+    get api_v1_items_find_path(attribute.to_sym => query)
+
+    item = JSON.parse(response.body, symbolize_names: true)[:data]
+
+    expect(response.status).to eq(200)
+    expect(item).to eq(nil)
   end
 
   it 'finds one merchant by created date' do
@@ -85,5 +99,19 @@ describe 'Merchant Search API', type: :request do
       expect(merchant[:attributes]).to have_key(:name)
       expect(merchant[:attributes][:name]).to be_a(String)
     end
+  end
+
+  it 'returns nil when merchant multi search matches nothing' do
+    create_list(:merchant, 5)
+
+    attribute = :name
+    query = 'jifdsnkje'
+
+    get api_v1_items_find_all_path(attribute.to_sym => query)
+
+    expect(response).to be_successful
+
+    items = JSON.parse(response.body, symbolize_names: true)[:data]
+    expect(items).to eq([])
   end
 end
