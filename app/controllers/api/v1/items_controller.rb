@@ -31,8 +31,4 @@ class Api::V1::ItemsController < ApplicationController
   def item_params
     params.permit(:name, :description, :unit_price, :merchant_id)
   end
-
-  def check_blank_params(params)
-    params.values.any? { |v| v.blank? }
-  end
 end

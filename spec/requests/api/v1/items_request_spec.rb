@@ -169,7 +169,7 @@ describe 'Items API', type: :request do
     expect(merchant[:attributes][:name]).to be_a(String)
   end
 
-  it 'cannot return the merchant if the item doesn not exist' do
+  it 'cannot return the merchant if the item does not exist' do
     get api_v1_item_merchants_path(1)
 
     expect(response.status).to eq(404)

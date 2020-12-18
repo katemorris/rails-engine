@@ -38,6 +38,11 @@ describe 'Merchant API', type: :request do
     expect(merchant[:attributes][:name]).to eq(core_merchant.name)
   end
 
+  it 'does not send an merchant if it does not exist' do
+    get api_v1_merchant_path(58938)
+    expect(response.status).to eq(404)
+  end
+
   it 'creates a merchant' do
     merchant_params = {
       name: 'Starbucks'
@@ -49,6 +54,16 @@ describe 'Merchant API', type: :request do
 
     expect(response).to be_successful
     expect(created_merchant.name).to eq(merchant_params[:name])
+  end
+
+  it 'cannot create a merchant without necessary data' do
+    merchant_params = {
+    }
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    post api_v1_merchants_path, headers: headers, params: JSON.generate(merchant_params)
+
+    expect(response.status).to eq(422)
   end
 
   it 'updates a merchant info' do
@@ -63,6 +78,19 @@ describe 'Merchant API', type: :request do
     expect(response).to be_successful
     expect(merchant.name).to_not eq(previous_name)
     expect(merchant.name).to eq(merchant_params[:name])
+  end
+
+  it 'cannot update a merchant with blank content' do
+    merchant = create(:merchant)
+    id = merchant.id
+    previous_name = merchant.name
+    merchant_params = {name: ''}
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    patch api_v1_merchant_path(id), headers: headers, params: JSON.generate(merchant_params)
+
+    expect(response.status).to eq(422)
+    expect(merchant.name).to eq(previous_name)
   end
 
   it 'deletes a merchant' do
@@ -102,5 +130,11 @@ describe 'Merchant API', type: :request do
     end
 
     expect(items.first[:attributes][:unit_price]).to eq(m_items.first.unit_price)
+  end
+
+  it 'cannot return the items if the merchant does not exist' do
+    get api_v1_merchant_items_path(1)
+
+    expect(response.status).to eq(404)
   end
 end

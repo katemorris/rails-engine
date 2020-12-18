@@ -9,4 +9,8 @@ class ApplicationController < ActionController::API
   def render_not_found_response(exception)
     render json: { error: exception.message }, status: :not_found
   end
+
+  def check_blank_params(params)
+    params.values.any? { |v| v.blank? }
+  end
 end
