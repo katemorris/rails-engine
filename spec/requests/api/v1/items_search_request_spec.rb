@@ -49,6 +49,19 @@ describe 'Items Search API', type: :request do
     expect(item[:attributes][:name]).to eq(core_item[:name])
   end
 
+  it 'return blank array if no items are found' do
+    create_list(:item, 3)
+    attribute = :description
+    query = 'jfdsiej'
+
+    get api_v1_items_find_path(attribute.to_sym => query)
+
+    item = JSON.parse(response.body, symbolize_names: true)[:data]
+
+    expect(response.status).to eq(200)
+    expect(item).to eq(nil)
+  end
+
   it 'finds one item by created date' do
     core_item = create(:item, created_at: DateTime.now - (2/24.0))
 
@@ -104,5 +117,19 @@ describe 'Items Search API', type: :request do
 
     expect(items.first[:id].to_i).to eq(item_1.id)
     expect(items.include?(nope)).to eq(false)
+  end
+
+  it 'returns nil when multi search matches nothing' do
+    create_list(:item, 5)
+
+    attribute = :name
+    query = 'jifdsnkje'
+
+    get api_v1_items_find_all_path(attribute.to_sym => query)
+
+    expect(response).to be_successful
+
+    items = JSON.parse(response.body, symbolize_names: true)[:data]
+    expect(items).to eq([])
   end
 end

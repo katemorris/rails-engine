@@ -59,6 +59,11 @@ describe 'Items API', type: :request do
     expect(item[:attributes][:merchant_id]).to be_an(Integer)
   end
 
+  it 'does not send an item if it does not exist' do
+    get api_v1_item_path(58938)
+    expect(response.status).to eq(404)
+  end
+
   it 'creates an item' do
     merchant = create(:merchant)
     item_params = {
@@ -80,6 +85,37 @@ describe 'Items API', type: :request do
     expect(created_item.merchant_id).to eq(item_params[:merchant_id])
   end
 
+  it 'cannot create an item without necessary data' do
+    merchant = create(:merchant)
+    item_params = {
+      name: 'CyberPunk 2077 T-Shirt',
+      unit_price: 27.99,
+      merchant_id: merchant.id
+    }
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    post api_v1_items_path, headers: headers, params: JSON.generate(item_params)
+
+    expect(response.status).to eq(422)
+    expect(Item.find_by(name: item_params[:name])).to eq(nil)
+  end
+
+  it 'cannot create an item if the unit price is not a number' do
+    merchant = create(:merchant)
+    item_params = {
+      name: 'CyberPunk 2077 T-Shirt',
+      description: 'Amazingly soft shirt with the CyberPunk logo',
+      unit_price: 'none',
+      merchant_id: merchant.id
+    }
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    post api_v1_items_path, headers: headers, params: JSON.generate(item_params)
+
+    expect(response.status).to eq(422)
+    expect(Item.find_by(name: item_params[:name])).to eq(nil)
+  end
+
   it 'updates an item info' do
     id = create(:item).id
     previous_name = Item.last.name
@@ -92,6 +128,19 @@ describe 'Items API', type: :request do
     expect(response).to be_successful
     expect(item.name).to_not eq(previous_name)
     expect(item.name).to eq(item_params[:name])
+  end
+
+  it 'cannot update an item with blank content' do
+    item = create(:item)
+    id = item.id
+    previous_name = Item.last.name
+    item_params = {name: ''}
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    patch api_v1_item_path(id), headers: headers, params: JSON.generate(item_params)
+
+    expect(response.status).to eq(422)
+    expect(item.name).to eq(previous_name)
   end
 
   it 'deletes an item' do
@@ -118,5 +167,11 @@ describe 'Items API', type: :request do
 
     expect(merchant[:attributes]).to have_key(:name)
     expect(merchant[:attributes][:name]).to be_a(String)
+  end
+
+  it 'cannot return the merchant if the item doesn not exist' do
+    get api_v1_item_merchants_path(1)
+
+    expect(response.status).to eq(404)
   end
 end

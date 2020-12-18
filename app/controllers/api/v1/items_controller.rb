@@ -13,8 +13,12 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def update
-    item = Item.update(params[:id], item_params)
-    render json: ItemSerializer.new(item)
+    if check_blank_params(params)
+      render json: { error: 'data cannot be blank' }, status: :unprocessable_entity
+    else
+      item = Item.update(params[:id], item_params)
+      render json: ItemSerializer.new(item)
+    end
   end
 
   def destroy
@@ -26,5 +30,9 @@ class Api::V1::ItemsController < ApplicationController
 
   def item_params
     params.permit(:name, :description, :unit_price, :merchant_id)
+  end
+
+  def check_blank_params(params)
+    params.values.any? { |v| v.blank? }
   end
 end
