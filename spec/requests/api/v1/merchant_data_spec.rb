@@ -43,7 +43,26 @@ describe 'Merchant API', type: :request do
 
     expect(merchants[:data].first[:id]).to eq(@merchants[1].id.to_s)
     expect(merchants[:data].last[:id]).to eq(@merchants[0].id.to_s)
+  end
 
+  it 'returns no merchants if the quantity is zero' do
+    get api_v1_merchants_most_revenue_path(:quantity => 0)
+
+    expect(response).to be_successful
+
+    merchants = JSON.parse(response.body, symbolize_names: true)
+
+    expect(merchants[:data]).to eq([])
+  end
+
+  it 'returns all merchants if the quantity is too large' do
+    get api_v1_merchants_most_revenue_path(:quantity => 3)
+
+    expect(response).to be_successful
+
+    merchants = JSON.parse(response.body, symbolize_names: true)
+
+    expect(merchants[:data].count).to eq(2)
   end
 
   it 'returns merchants with the most items sold' do
@@ -64,6 +83,26 @@ describe 'Merchant API', type: :request do
     expect(merchants[:data].first[:id]).to eq(@merchants[1].id.to_s)
   end
 
+  it 'returns no merchants in most items query if the quantity is zero' do
+    get api_v1_merchants_most_items_path(:quantity => 0)
+
+    expect(response).to be_successful
+
+    merchants = JSON.parse(response.body, symbolize_names: true)
+
+    expect(merchants[:data]).to eq([])
+  end
+
+  it 'returns all merchants in most items query if the quantity is too large' do
+    get api_v1_merchants_most_items_path(:quantity => 3)
+
+    expect(response).to be_successful
+
+    merchants = JSON.parse(response.body, symbolize_names: true)
+
+    expect(merchants[:data].count).to eq(2)
+  end
+
   it 'returns total revenue for all merchants in a date range' do
     get api_v1_revenue_path(:start => Date.today - 30, :end => Date.today + 30)
 
@@ -73,6 +112,24 @@ describe 'Merchant API', type: :request do
     expect(revenue[:data][:attributes][:revenue].to_f.round(2)).to eq(140.0)
   end
 
+  it 'returns zero if nothing exists in the date range' do
+    get api_v1_revenue_path(:start => Date.today - 100, :end => Date.today - 90)
+
+    expect(response).to be_successful
+    revenue = JSON.parse(response.body, symbolize_names: true)
+
+    expect(revenue[:data][:attributes][:revenue].to_f.round(2)).to eq(0.0)
+  end
+
+  it 'returns zero if the date ranges are reversed' do
+    get api_v1_revenue_path(:start => Date.today + 30, :end => Date.today - 30)
+
+    expect(response).to be_successful
+    revenue = JSON.parse(response.body, symbolize_names: true)
+
+    expect(revenue[:data][:attributes][:revenue].to_f.round(2)).to eq(0.0)
+  end
+
   it 'returns total revenue for a single merchant' do
     get api_v1_merchant_revenue_path(@merchants[1].id)
 
@@ -80,5 +137,11 @@ describe 'Merchant API', type: :request do
     revenue = JSON.parse(response.body, symbolize_names: true)
 
     expect(revenue[:data][:attributes][:revenue].to_f.round(2)).to eq(120.0)
+  end
+
+  it 'returns 404 if the merchant does not exist' do
+    get api_v1_merchant_revenue_path(1)
+
+    expect(response.status).to eq(404)
   end
 end
