@@ -8,7 +8,7 @@ describe 'Items Search API', type: :request do
     attribute = :name
     query = 'bunny'
 
-    get "/api/v1/items/find?#{attribute}=#{query}"
+    get api_v1_items_find_path(attribute.to_sym => query)
 
     expect(response).to be_successful
 
@@ -36,7 +36,7 @@ describe 'Items Search API', type: :request do
     attribute = :description
     query = 'bun'
 
-    get "/api/v1/items/find?#{attribute}=#{query}"
+    get api_v1_items_find_path(attribute.to_sym => query)
 
     expect(response).to be_successful
 
@@ -56,7 +56,7 @@ describe 'Items Search API', type: :request do
     attribute = :created_at
     query = core_item.created_at
 
-    get "/api/v1/items/find?#{attribute}=#{query}"
+    get api_v1_items_find_path(attribute.to_sym => query)
 
     expect(response).to be_successful
 
@@ -70,15 +70,15 @@ describe 'Items Search API', type: :request do
   end
 
   it 'sends all items data for partial match' do
-    create(:item, name: 'Fluffy Bunny')
+    item_1 = create(:item, name: 'Fluffy Bunny')
     create(:item, name: 'Fat Bunny')
     create(:item, name: 'Peanut Bunner')
-    create(:item, name: 'Superman')
+    nope = create(:item, name: 'Superman')
 
     attribute = :name
     query = 'bun'
 
-    get "/api/v1/items/find_all?#{attribute}=#{query}"
+    get api_v1_items_find_all_path(attribute.to_sym => query)
 
     expect(response).to be_successful
 
@@ -101,5 +101,8 @@ describe 'Items Search API', type: :request do
       expect(item[:attributes]).to have_key(:merchant_id)
       expect(item[:attributes][:merchant_id]).to be_an(Integer)
     end
+
+    expect(items.first[:id].to_i).to eq(item_1.id)
+    expect(items.include?(nope)).to eq(false)
   end
 end

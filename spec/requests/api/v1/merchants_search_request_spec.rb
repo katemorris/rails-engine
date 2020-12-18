@@ -4,7 +4,7 @@ require 'date'
 describe 'Merchant Search API', type: :request do
   before :each do
     @bunny = create(:merchant, name: 'Bunny Hill', created_at: DateTime.now - (2/24.0))
-    create_list(:item, 3)
+    create_list(:merchant, 3)
   end
   it 'finds one merchant using one input' do
     expect(Merchant.all.count).to eq(4)
@@ -12,7 +12,7 @@ describe 'Merchant Search API', type: :request do
     attribute = :name
     query = 'bunny'
 
-    get "/api/v1/merchants/find?#{attribute}=#{query}"
+    get api_v1_merchants_find_path(attribute.to_sym => query)
 
     expect(response).to be_successful
 
@@ -31,7 +31,7 @@ describe 'Merchant Search API', type: :request do
     attribute = :name
     query = 'bun'
 
-    get "/api/v1/merchants/find?#{attribute}=#{query}"
+    get api_v1_merchants_find_path(attribute.to_sym => query)
 
     expect(response).to be_successful
 
@@ -44,11 +44,11 @@ describe 'Merchant Search API', type: :request do
     expect(merchant[:attributes][:name]).to eq(@bunny.name)
   end
 
-  it 'finds one item by created date' do
+  it 'finds one merchant by created date' do
     attribute = :created_at
     query = @bunny.created_at
 
-    get "/api/v1/merchants/find?#{attribute}=#{query}"
+    get api_v1_merchants_find_path(attribute.to_sym => query)
 
     expect(response).to be_successful
 
@@ -61,7 +61,7 @@ describe 'Merchant Search API', type: :request do
     expect(merchant[:attributes][:name]).to eq(@bunny.name)
   end
 
-  it 'sends all items data for partial match' do
+  it 'sends all merchant data for partial match' do
     create(:merchant, name: 'Fluffy Bunny')
     create(:merchant, name: 'Fat Bunny')
     create(:merchant, name: 'Peanut Bunner')
@@ -70,7 +70,7 @@ describe 'Merchant Search API', type: :request do
     attribute = :name
     query = 'bun'
 
-    get "/api/v1/merchants/find_all?#{attribute}=#{query}"
+    get api_v1_merchants_find_all_path(attribute.to_sym => query)
 
     expect(response).to be_successful
 

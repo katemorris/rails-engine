@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe 'Items API', type: :request do
   it 'sends all items data' do
-    create_list(:item, 3)
+    made_items = create_list(:item, 3)
 
-    get '/api/v1/items'
+    get api_v1_items_path
 
     expect(response).to be_successful
 
@@ -26,12 +26,16 @@ describe 'Items API', type: :request do
       expect(item[:attributes]).to have_key(:merchant_id)
       expect(item[:attributes][:merchant_id]).to be_an(Integer)
     end
+
+    expect(items[:data].first[:attributes][:name]).to eq(made_items.first.name)
+    expect(items[:data].second[:attributes][:description]).to eq(made_items.second.description)
+
   end
 
   it 'sends an item data' do
     core_item = create(:item)
 
-    get "/api/v1/items/#{core_item.id}"
+    get api_v1_item_path(core_item.id)
 
     expect(response).to be_successful
 
@@ -42,12 +46,14 @@ describe 'Items API', type: :request do
 
     expect(item[:attributes]).to have_key(:name)
     expect(item[:attributes][:name]).to be_a(String)
+    expect(item[:attributes][:name]).to eq(core_item.name)
 
     expect(item[:attributes]).to have_key(:description)
     expect(item[:attributes][:description]).to be_a(String)
 
     expect(item[:attributes]).to have_key(:unit_price)
     expect(item[:attributes][:unit_price]).to be_a(Float)
+    expect(item[:attributes][:unit_price]).to eq(core_item.unit_price)
 
     expect(item[:attributes]).to have_key(:merchant_id)
     expect(item[:attributes][:merchant_id]).to be_an(Integer)
@@ -63,7 +69,8 @@ describe 'Items API', type: :request do
     }
     headers = {"CONTENT_TYPE" => "application/json"}
 
-    post "/api/v1/items", headers: headers, params: JSON.generate(item_params)
+    post api_v1_items_path, headers: headers, params: JSON.generate(item_params)
+
     created_item = Item.last
 
     expect(response).to be_successful
@@ -79,7 +86,7 @@ describe 'Items API', type: :request do
     item_params = {name: 'Carrier Pidgeon'}
     headers = {"CONTENT_TYPE" => "application/json"}
 
-    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate(item_params)
+    patch api_v1_item_path(id), headers: headers, params: JSON.generate(item_params)
     item = Item.find_by(id: id)
 
     expect(response).to be_successful
@@ -90,7 +97,7 @@ describe 'Items API', type: :request do
   it 'deletes an item' do
     item = create(:item)
 
-    expect{ delete "/api/v1/items/#{item.id}" }.to change(Item, :count).by(-1)
+    expect{ delete api_v1_item_path(item.id) }.to change(Item, :count).by(-1)
 
     expect(response).to be_successful
     expect(Item.count).to eq(0)
@@ -100,13 +107,14 @@ describe 'Items API', type: :request do
   it 'returns the merchant for an item' do
     item = create(:item)
 
-    get "/api/v1/items/#{item.id}/merchants"
+    get api_v1_item_merchants_path(item.id)
 
     expect(response).to be_successful
     merchant = JSON.parse(response.body, symbolize_names: true)[:data]
 
     expect(merchant).to have_key(:id)
     expect(merchant[:id]).to be_an(String)
+    expect(merchant[:id].to_i).to eq(item.merchant.id)
 
     expect(merchant[:attributes]).to have_key(:name)
     expect(merchant[:attributes][:name]).to be_a(String)

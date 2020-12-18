@@ -27,7 +27,7 @@ describe 'Merchant API', type: :request do
   end
 
   it 'returns merchants with the most revenue' do
-    get '/api/v1/merchants/most_revenue?quantity=2'
+    get api_v1_merchants_most_revenue_path(:quantity => 2)
 
     expect(response).to be_successful
 
@@ -47,7 +47,7 @@ describe 'Merchant API', type: :request do
   end
 
   it 'returns merchants with the most items sold' do
-    get '/api/v1/merchants/most_items?quantity=1'
+    get api_v1_merchants_most_items_path(:quantity => 2)
 
     expect(response).to be_successful
 
@@ -65,7 +65,7 @@ describe 'Merchant API', type: :request do
   end
 
   it 'returns total revenue for all merchants in a date range' do
-    get "/api/v1/revenue?start=#{Date.today}&end=#{Date.today}"
+    get api_v1_revenue_path(:start => Date.today - 30, :end => Date.today + 30)
 
     expect(response).to be_successful
     revenue = JSON.parse(response.body, symbolize_names: true)
@@ -74,7 +74,7 @@ describe 'Merchant API', type: :request do
   end
 
   it 'returns total revenue for a single merchant' do
-    get "/api/v1/merchants/#{@merchants[1].id}/revenue"
+    get api_v1_merchant_revenue_path(@merchants[1].id)
 
     expect(response).to be_successful
     revenue = JSON.parse(response.body, symbolize_names: true)

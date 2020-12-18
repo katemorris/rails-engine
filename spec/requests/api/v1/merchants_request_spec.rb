@@ -2,27 +2,29 @@ require 'rails_helper'
 
 describe 'Merchant API', type: :request do
   it 'sends all merchant data' do
-    create_list(:merchant, 3)
+    n_merchants = create_list(:merchant, 3)
 
-    get '/api/v1/merchants'
+    get api_v1_merchants_path
 
     expect(response).to be_successful
 
-    merchants = JSON.parse(response.body, symbolize_names: true)
+    merchants = JSON.parse(response.body, symbolize_names: true)[:data]
 
-    merchants[:data].each do |merchant|
+    merchants.each do |merchant|
       expect(merchant).to have_key(:id)
       expect(merchant[:id]).to be_an(String)
 
       expect(merchant[:attributes]).to have_key(:name)
       expect(merchant[:attributes][:name]).to be_a(String)
     end
+
+    expect(merchants.first[:id].to_i).to eq(n_merchants.first.id)
   end
 
   it "sends a merchant's info" do
     core_merchant = create(:merchant)
 
-    get "/api/v1/merchants/#{core_merchant.id}"
+    get api_v1_merchant_path(core_merchant.id)
 
     expect(response).to be_successful
 
@@ -33,6 +35,7 @@ describe 'Merchant API', type: :request do
 
     expect(merchant[:attributes]).to have_key(:name)
     expect(merchant[:attributes][:name]).to be_a(String)
+    expect(merchant[:attributes][:name]).to eq(core_merchant.name)
   end
 
   it 'creates a merchant' do
@@ -41,7 +44,7 @@ describe 'Merchant API', type: :request do
     }
     headers = {"CONTENT_TYPE" => "application/json"}
 
-    post "/api/v1/merchants", headers: headers, params: JSON.generate(merchant_params)
+    post api_v1_merchants_path, headers: headers, params: JSON.generate(merchant_params)
     created_merchant = Merchant.last
 
     expect(response).to be_successful
@@ -54,7 +57,7 @@ describe 'Merchant API', type: :request do
     merchant_params = {name: 'ColdBrewz'}
     headers = {"CONTENT_TYPE" => "application/json"}
 
-    patch "/api/v1/merchants/#{id}", headers: headers, params: JSON.generate(merchant_params)
+    patch api_v1_merchant_path(id), headers: headers, params: JSON.generate(merchant_params)
     merchant = Merchant.find_by(id: id)
 
     expect(response).to be_successful
@@ -65,7 +68,7 @@ describe 'Merchant API', type: :request do
   it 'deletes a merchant' do
     merchant = create(:merchant)
 
-    expect{ delete "/api/v1/merchants/#{merchant.id}" }.to change(Merchant, :count).by(-1)
+    expect{ delete api_v1_merchant_path(merchant.id) }.to change(Merchant, :count).by(-1)
 
     expect(response).to be_successful
     expect(Merchant.count).to eq(0)
@@ -74,14 +77,14 @@ describe 'Merchant API', type: :request do
 
   it 'returns the items for a merchant' do
     merchant = create(:merchant)
-    create_list(:item, 5, merchant_id: merchant.id)
+    m_items = create_list(:item, 5, merchant_id: merchant.id)
 
-    get "/api/v1/merchants/#{merchant.id}/items"
+    get api_v1_merchant_items_path(merchant.id)
 
     expect(response).to be_successful
-    items = JSON.parse(response.body, symbolize_names: true)
+    items = JSON.parse(response.body, symbolize_names: true)[:data]
 
-    items[:data].each do |item|
+    items.each do |item|
       expect(item).to have_key(:id)
       expect(item[:id]).to be_an(String)
 
@@ -97,5 +100,7 @@ describe 'Merchant API', type: :request do
       expect(item[:attributes]).to have_key(:merchant_id)
       expect(item[:attributes][:merchant_id]).to be_an(Integer)
     end
+
+    expect()
   end
 end
