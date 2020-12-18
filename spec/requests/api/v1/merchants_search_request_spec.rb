@@ -23,6 +23,7 @@ describe 'Merchant Search API', type: :request do
 
     expect(merchant[:attributes]).to have_key(:name)
     expect(merchant[:attributes][:name]).to be_a(String)
+    expect(merchant[:attributes][:name]).to eq(@bunny.name)
   end
 
   it 'finds one merchant partial search' do
@@ -74,15 +75,15 @@ describe 'Merchant Search API', type: :request do
 
     expect(response).to be_successful
 
-    items = JSON.parse(response.body, symbolize_names: true)[:data]
-    expect(items.count).to eq(4)
+    merchants = JSON.parse(response.body, symbolize_names: true)[:data]
+    expect(merchants.count).to eq(4)
 
-    items.each do |item|
-      expect(item).to have_key(:id)
-      expect(item[:id]).to be_an(String)
+    merchants.each do |merchant|
+      expect(merchant).to have_key(:id)
+      expect(merchant[:id]).to be_an(String)
 
-      expect(item[:attributes]).to have_key(:name)
-      expect(item[:attributes][:name]).to be_a(String)
+      expect(merchant[:attributes]).to have_key(:name)
+      expect(merchant[:attributes][:name]).to be_a(String)
     end
   end
 end

@@ -101,6 +101,6 @@ describe 'Merchant API', type: :request do
       expect(item[:attributes][:merchant_id]).to be_an(Integer)
     end
 
-    expect()
+    expect(items.first[:attributes][:unit_price]).to eq(m_items.first.unit_price)
   end
 end
