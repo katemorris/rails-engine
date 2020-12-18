@@ -1,24 +1,28 @@
-# README
+# Rails Engine
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is an API that returns data about merchants and items, much like a standard ecommerce system. 
 
-Things you may want to cover:
+## Table of Contents
+  - [Included Technology](#included-technology)
+  - [How to Install](#how-to-install)
+  - [Testing](#testing)
+  - [Example Usage](#feature-tests)
 
+## Included Technology
 * Ruby version
 
 * System dependencies
 
+## How to Install
 * Configuration
 
 * Database creation
 
 * Database initialization
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
 * Deployment instructions
 
-* ...
+## Testing
+* How to run the test suite
+
+## Example Usage
